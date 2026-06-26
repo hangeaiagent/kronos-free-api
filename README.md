@@ -14,12 +14,12 @@
 
 ## ✨ 核心能力
 
-| API | 功能 | 计费 | 典型场景 |
-|---|---|---|---|
-| 🔍 **Google搜索API** | 实时搜索Google全网，AI自动生成摘要 | 按Token计费 | 获取券商研报、新闻资讯、机构观点 |
-| 📈 **K线预测API** | **Pro 多因子模型**预测未来N日K线 + 评级 | 100 Token/次 | 量化策略辅助、趋势研判、因子分析 |
+| API | 功能 | 典型场景 |
+|---|---|---|
+| 🔍 **Google搜索API** | 实时搜索Google全网，AI自动生成摘要 | 获取券商研报、新闻资讯、机构观点 |
+| 📈 **K线预测API** | **Pro 多因子模型**预测未来N日K线 + 评级 | 量化策略辅助、趋势研判、因子分析 |
 
-> 🎁 **目前完全免费开放**，默认月度额度 10,000 Token
+> 🎁 **目前完全免费开放**
 
 ---
 
@@ -95,7 +95,6 @@ resp = requests.post(
 )
 data = resp.json()
 print(data["result"])      # AI搜索摘要
-print(data["tokensUsed"])  # 本次消耗Token
 ```
 
 **Node.js 示例**
@@ -109,7 +108,7 @@ const res = await fetch("https://api.agentpit.io/v1/open-api/search", {
   },
   body: JSON.stringify({ query: "紫金矿业 铜价上涨影响分析" }),
 });
-const { result, tokensUsed } = await res.json();
+const { result } = await res.json();
 console.log(result);
 ```
 
@@ -117,7 +116,6 @@ console.log(result);
 ```json
 {
   "result": "根据最新搜索，中际旭创2026年Q1净利润57.35亿元，同比增长262%...",
-  "tokensUsed": 856,
   "latencyMs": 3200
 }
 ```
