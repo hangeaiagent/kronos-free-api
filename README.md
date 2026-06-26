@@ -3,10 +3,11 @@
 [![Free API](https://img.shields.io/badge/API-Free-green)](https://develop.agentpit.io/help)
 [![Google Search](https://img.shields.io/badge/Google%20Search-Grounding-blue)](https://develop.agentpit.io/help#google-search)
 [![K-Line Pro](https://img.shields.io/badge/K--Line-Pro%20多因子-orange)](https://develop.agentpit.io/help#kpred)
+[![Fin-R1](https://img.shields.io/badge/Fin--R1-金融大模型-purple)](https://develop.agentpit.io/help#llm)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > 为量化开发者和金融研究者提供免费、开放的金融AI API接口  
-> — Google实时搜索 + **Pro 多因子K线预测**，即刻接入，无需信用卡。
+> — Google实时搜索 + **Pro 多因子K线预测** + **Fin-R1 金融大模型**，即刻接入，无需信用卡。
 
 **📖 完整文档：[develop.agentpit.io/help](https://develop.agentpit.io/help)**
 
@@ -18,6 +19,7 @@
 |---|---|---|
 | 🔍 **Google搜索API** | 实时搜索Google全网，AI自动生成摘要 | 获取券商研报、新闻资讯、机构观点 |
 | 📈 **K线预测API** | **Pro 多因子模型**预测未来N日K线 + 评级 | 量化策略辅助、趋势研判、因子分析 |
+| 🧠 **Fin-R1 金融大模型API** | 上海财经大学开源金融LLM，链式推理 | 研报解读、财报问答、投资逻辑分析 |
 
 > 🎁 **目前完全免费开放**
 
@@ -267,6 +269,80 @@ for f in resp.json()["pro"]["factors"]:
 
 ---
 
+---
+
+### 3. Fin-R1 金融大模型 API
+
+**接口地址**
+```
+POST https://api.agentpit.io/v1/open-api/llm
+```
+
+**请求参数**
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `messages` | array | ✅ | 对话消息数组，格式同 OpenAI |
+| `max_tokens` | number | 否 | 最大输出 token，默认 1024 |
+| `temperature` | number | 否 | 随机性 0~1，默认 0.7 |
+
+**Python 示例**
+
+```python
+import requests
+
+API_KEY = "oapk_your_key_here"
+
+resp = requests.post(
+    "https://api.agentpit.io/v1/open-api/llm",
+    headers={"Authorization": f"Bearer {API_KEY}"},
+    json={
+        "messages": [
+            {"role": "user", "content": "分析贵州茅台2026年Q1财报净利润下降5%，给出投资建议"}
+        ],
+        "max_tokens": 800,
+    },
+)
+data = resp.json()
+print(data["content"])        # 模型分析文字
+print(data["tokensUsed"])     # 消耗 token 数
+print(data["latencyMs"])      # 响应耗时(ms)
+```
+
+**Node.js 示例**
+
+```javascript
+const res = await fetch("https://api.agentpit.io/v1/open-api/llm", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer oapk_your_key_here",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    messages: [{ role: "user", content: "紫金矿业铜价上涨对业绩的影响分析" }],
+    max_tokens: 600,
+  }),
+});
+const { content, latencyMs } = await res.json();
+console.log(content);
+```
+
+**返回格式**
+
+```json
+{
+  "model": "fin-r1",
+  "content": "根据贵州茅台2026年Q1财报数据分析...\n\n1. 净利润下降原因：...\n2. 投资建议：...",
+  "tokensUsed": 856,
+  "latencyMs": 8500
+}
+```
+
+> **适用场景：** 研报解读、财报问答、投资逻辑分析、行业趋势分析  
+> **不适合：** 实时行情查询（无联网）、高频调用（响应约5~15秒）、结构化JSON输出
+
+---
+
 ## ⚠️ 错误码
 
 | HTTP状态码 | 含义 | 处理方式 |
@@ -281,11 +357,10 @@ for f in resp.json()["pro"]["factors"]:
 
 - [x] Google Search Grounding API
 - [x] Pro 多因子K线预测API（Kronos + 技术/资金/估值 8因子）
-- [ ] 用户自定义因子权重（coming soon）
-- [ ] FinGPT（清华金融NLP）API
+- [x] 用户自定义因子权重
+- [x] **Fin-R1 金融大模型API**（上海财经大学，A股中文优化，链式推理）
+- [ ] FinGPT（哥伦比亚/NYU，情感分析专项）API
 - [ ] 轩辕 XuanYuan（度小满金融大模型）API
-- [ ] DISC-FinLLM（复旦大学金融大模型）API
-- [ ] InvestLM（香港科大投资分析模型）API
 - [ ] 更多金融开源大模型持续上线中...
 
 > ⭐ Star 本仓库，第一时间获取新API上线通知
