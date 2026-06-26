@@ -234,6 +234,41 @@ predictions.forEach(p => {
 
 ---
 
+---
+
+## ⚙️ 自定义因子权重
+
+K线预测 API 支持**每个用户独立设置因子权重**，权重绑定账号，所有 API 调用自动生效。
+
+### 如何设置
+
+登录 [develop.agentpit.io/dashboard/open-api](https://develop.agentpit.io/dashboard/open-api)，K线预测审批通过后，页面下方会出现「自定义因子权重」面板：
+
+- 拖动 8 个因子的滑块调整占比
+- 系统自动归一化（无需手动凑 100%）
+- 点击「保存权重」即时生效
+
+### 权重策略建议
+
+| 使用场景 | 推荐调整 |
+|---|---|
+| 偏重资金面 | 主力净流入 50%+，筹码分布 20% |
+| 偏重技术面 | 均线趋势/MACD/RSI 合计 40%+ |
+| 偏重估值 | PE估值 25%+，降低其他权重 |
+| 量化中性 | 使用默认权重（主力净流入 35% 为核心）|
+
+### 返回结果中验证权重
+
+每次 API 响应的 `pro.factors[].weight` 字段会显示**本次使用的实际权重**，方便调试：
+
+```python
+resp = requests.post("https://api.agentpit.io/v1/open-api/kpred", ...)
+for f in resp.json()["pro"]["factors"]:
+    print(f"{f['label']:8s}  当前权重: {f['weight']:.0%}  贡献: {f['contribution']:+.3f}")
+```
+
+---
+
 ## ⚠️ 错误码
 
 | HTTP状态码 | 含义 | 处理方式 |
