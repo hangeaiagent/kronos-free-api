@@ -450,6 +450,103 @@ if (sentiment === "positive") {
 
 ---
 
+
+### 5. Kronos K线预测 API（纯基础模型）
+
+> **Kronos** — 清华大学 IIIS + 自动化系，AAAI 2026 录用，GitHub 31k+ Stars，MIT 协议  
+> 直接调用 Kronos 原始模型，输出纯 OHLCV 预测序列，**不叠加任何多因子权重**  
+> 📌 与上方 K线预测 API（Pro 多因子）的区别：Pro 版叠加了主力资金、RSI、MACD 等 8 个因子；本接口为模型原始输出，适合自行融合因子或对比研究
+
+**接口信息**
+
+| 项目 | 内容 |
+|------|------|
+| 端点 | POST https://api.agentpit.io/v1/open-api/kronos |
+| 认证 | Authorization: Bearer oapk_YOUR_KEY |
+| 申请 | https://develop.agentpit.io/dashboard/open-api/apply?type=KRONOS |
+
+**请求参数**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| code | string | ✅ | A 股股票代码，如 300308、600519 |
+| days | number | ❌ | 预测天数，范围 1~30，默认 5 |
+
+**请求示例（curl）**
+
+`ash
+curl -X POST https://api.agentpit.io/v1/open-api/kronos \
+  -H "Authorization: Bearer oapk_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"code":"300308","days":5}'
+`
+
+**响应示例**
+
+`json
+{
+  "symbol": "300308",
+  "name": "中际旭创",
+  "last_date": "2026-06-26",
+  "last_close": 1332.52,
+  "predictions": [
+    {"date":"2026-06-27","open":1340.1,"high":1368.5,"low":1318.0,"close":1355.2,"volume":412000},
+    {"date":"2026-06-30","open":1355.2,"high":1380.0,"low":1340.0,"close":1372.8,"volume":388000},
+    {"date":"2026-07-01","open":1372.8,"high":1395.0,"low":1355.0,"close":1360.5,"volume":356000},
+    {"date":"2026-07-02","open":1360.5,"high":1370.0,"low":1330.0,"close":1348.0,"volume":320000},
+    {"date":"2026-07-03","open":1348.0,"high":1365.0,"low":1325.0,"close":1358.5,"volume":298000}
+  ],
+  "latencyMs": 820
+}
+`
+
+**Python 示例**
+
+`python
+import requests
+
+API_KEY = "oapk_YOUR_KEY"
+
+resp = requests.post(
+    "https://api.agentpit.io/v1/open-api/kronos",
+    json={"code": "300308", "days": 5},
+    headers={"Authorization": f"Bearer {API_KEY}"},
+    timeout=15,
+)
+data = resp.json()
+
+print(f"{data['name']}  最新收盘: {data['last_close']}")
+for p in data["predictions"]:
+    chg = (p["close"] - data["last_close"]) / data["last_close"] * 100
+    print(f"  {p['date']}  收:{p['close']:.2f}  ({chg:+.2f}%)")
+`
+
+**Node.js 示例**
+
+`javascript
+const res = await fetch("https://api.agentpit.io/v1/open-api/kronos", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer oapk_YOUR_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ code: "600519", days: 5 }),
+});
+
+const { name, last_close, predictions } = await res.json();
+console.log(${name} 最新收盘: );
+predictions.forEach(p => {
+  const chg = ((p.close - last_close) / last_close * 100).toFixed(2);
+  console.log(    收:  (%));
+});
+`
+
+> **注意事项：**
+> - 本 API 为纯 Kronos 模型输出，预测仅基于历史价量形态，**不含资金面、基本面信息**
+> - 如需多因子融合版，请使用上方的 K线预测 API（Pro 多因子，KPRED）
+> - 预测天数越长不确定性越高，建议配合其他信号使用，不构成投资建议
+
+---
 ## ⚠️ 错误码
 
 | HTTP状态码 | 含义 | 处理方式 |
