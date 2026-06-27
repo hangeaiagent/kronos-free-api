@@ -5,6 +5,7 @@
 [![K-Line Pro](https://img.shields.io/badge/K--Line-Pro%20多因子-orange)](https://develop.agentpit.io/help#kpred)
 [![Fin-R1](https://img.shields.io/badge/Fin--R1-金融大模型-purple)](https://develop.agentpit.io/help#llm)
 [![FinGPT](https://img.shields.io/badge/FinGPT-情感分析-cyan)](https://develop.agentpit.io/help#fingpt)
+[![CFGPT](https://img.shields.io/badge/CFGPT-中文金融大模型-red)](https://develop.agentpit.io/help#cfgpt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > 为量化开发者和金融研究者提供免费、开放的金融AI API接口  
@@ -22,6 +23,7 @@
 | 📈 **K线预测API** | **Pro 多因子模型**预测未来N日K线 + 评级 | 量化策略辅助、趋势研判、因子分析 |
 | 🧠 **Fin-R1 金融大模型API** | 上海财经大学开源金融LLM，链式推理 | 研报解读、财报问答、投资逻辑分析 |
 | 💬 **FinGPT 情感分析API** | 哥伦比亚大学AI4Finance，14k+ Stars | 金融新闻情感打标，事件驱动信号辅助 |
+| 📑 **CFGPT 中文金融大模型API** | 同济大学FinLab + 上海AI实验室，InternLM2-7B | 年报解析、研报生成、财务指标计算 |
 
 > 🎁 **目前完全免费开放**
 
@@ -547,6 +549,131 @@ predictions.forEach(p => {
 > - 预测天数越长不确定性越高，建议配合其他信号使用，不构成投资建议
 
 ---
+### 6. CFGPT 中文金融大模型 API
+
+基于同济大学金融智能实验室（FinLab）联合上海人工智能实验室发布的 CFGPT2-7B（InternLM2-7B 底座），专为 A 股市场研究场景微调，擅长年报深度解析、研究报告生成、财务指标计算及金融问答。
+
+**接口地址**
+```
+POST https://api.agentpit.io/v1/open-api/cfgpt
+```
+
+**请求参数**
+
+| 参数 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `messages` | array | ✅ | 消息列表，格式同 OpenAI，role 可为 user / assistant / system |
+| `max_new_tokens` | number | ❌ | 最大生成 token 数，默认 512，建议不超过 1024 |
+| `temperature` | number | ❌ | 采样温度 0~1，默认 0.7；设 0 为贪婪解码（确定性输出） |
+
+**Python 示例**
+
+```python
+import requests
+
+API_KEY = "oapk_your_key_here"
+
+def ask_cfgpt(question: str, system: str = None) -> str:
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": question})
+
+    resp = requests.post(
+        "https://api.agentpit.io/v1/open-api/cfgpt",
+        json={"messages": messages, "max_new_tokens": 512},
+        headers={"Authorization": f"Bearer {API_KEY}"},
+        timeout=60,
+    )
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"]
+
+# 年报分析
+print(ask_cfgpt("分析贵州茅台2023年年报的核心财务指标，包括营收、净利润、毛利率、ROE"))
+
+# 财务指标计算
+print(ask_cfgpt("已知净利润5000万，总资产2亿，总负债8000万，请计算ROE、资产负债率"))
+
+# 多轮对话
+messages = [{"role": "user", "content": "什么是市盈率（PE）？"}]
+resp = requests.post("https://api.agentpit.io/v1/open-api/cfgpt",
+                     json={"messages": messages},
+                     headers={"Authorization": f"Bearer {API_KEY}"}, timeout=60)
+answer = resp.json()["choices"][0]["message"]["content"]
+print("A:", answer)
+
+messages.append({"role": "assistant", "content": answer})
+messages.append({"role": "user", "content": "PE 为 15 倍算高还是低？"})
+resp2 = requests.post("https://api.agentpit.io/v1/open-api/cfgpt",
+                      json={"messages": messages},
+                      headers={"Authorization": f"Bearer {API_KEY}"}, timeout=60)
+print("A:", resp2.json()["choices"][0]["message"]["content"])
+```
+
+**Node.js 示例**
+
+```javascript
+const API_KEY = "oapk_your_key_here";
+
+async function askCfgpt(question) {
+  const res = await fetch("https://api.agentpit.io/v1/open-api/cfgpt", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messages: [{ role: "user", content: question }],
+      max_new_tokens: 512,
+    }),
+  });
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
+// 研报生成
+const report = await askCfgpt("基于以下数据生成一份关于中际旭创的简短研究报告：Q1营收同比+25%，毛利率32%，订单充裕");
+console.log(report);
+```
+
+**返回格式**
+
+```json
+{
+  "choices": [{
+    "message": {
+      "role": "assistant",
+      "content": "贵州茅台2023年年报核心财务指标：
+
+**营收**：150.56亿元，同比增长18.04%
+**净利润**：74.73亿元，同比增长19.16%
+**毛利率**：92.11%
+**ROE**：36.58%"
+    },
+    "finish_reason": "stop"
+  }],
+  "model": "cfgpt2-7b",
+  "latencyMs": 3240
+}
+```
+
+**推荐使用场景**
+
+| 场景 | 示例 prompt |
+|---|---|
+| 年报解析 | "分析贵州茅台2023年年报核心财务指标，包括营收、净利润、毛利率、ROE" |
+| 研报生成 | "基于以下数据生成关于中际旭创的简短研究报告：Q1营收同比+25%，毛利率32%" |
+| 财务指标 | "已知净利润5000万，总资产2亿，总负债8000万，计算ROE、资产负债率" |
+| 金融问答 | "A股创业板退市新规中，连续两年净利润为负的企业会面临哪些处置措施？" |
+
+> **注意事项：**
+> - 首次请求（冷启动）可能有 30~60 秒延迟，GPU 显存预热后后续请求 2~5 秒
+> - CFGPT 专注 A 股中文金融场景，英文或通用问题效果不如专用模型
+> - 建议单次输入不超过 1500 字，过长上下文可能导致响应质量下降
+> - 申请地址：[develop.agentpit.io/dashboard/open-api/apply?type=CFGPT](https://develop.agentpit.io/dashboard/open-api/apply?type=CFGPT)
+
+---
+
 ## ⚠️ 错误码
 
 | HTTP状态码 | 含义 | 处理方式 |
@@ -564,6 +691,7 @@ predictions.forEach(p => {
 - [x] 用户自定义因子权重
 - [x] **Fin-R1 金融大模型API**（上海财经大学，A股中文优化，链式推理）
 - [x] **FinGPT 情感分析API**（哥伦比亚大学 AI4Finance，中英文双语，positive/negative/neutral）
+- [x] **CFGPT 中文金融大模型API**（同济大学 FinLab + 上海AI实验室，A 股年报/研报专项）
 - [ ] 轩辕 XuanYuan（度小满金融大模型）API
 - [ ] 更多金融开源大模型持续上线中...
 
