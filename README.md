@@ -9,7 +9,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > 为量化开发者和金融研究者提供免费、开放的金融AI API接口  
-> — Google实时搜索 + **Pro 多因子K线预测** + **Fin-R1 金融大模型** + **FinGPT 情感分析**，即刻接入，无需信用卡。
+> — Google实时搜索 + **清华Kronos开源大模型+多因子K线预测** + **Fin-R1 金融大模型** + **FinGPT 情感分析**，即刻接入，无需信用卡。
 
 **📖 完整文档：[develop.agentpit.io/help](https://develop.agentpit.io/help)**
 
