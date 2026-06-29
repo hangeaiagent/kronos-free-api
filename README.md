@@ -26,6 +26,15 @@
 | 📑 **CFGPT 中文金融大模型API** | 同济大学FinLab + 上海AI实验室，InternLM2-7B | 年报解析、研报生成、财务指标计算 |
 
 > 🎁 **目前完全免费开放**
+## 💬 开发者社群
+
+扫码加入 **AgentPit 金融AI开发者群**，与量化开发者交流API使用技巧和金融AI应用。
+<img width="1054" height="1512" alt="008680caff8d497d1e646234537bcd27" src="https://github.com/user-attachments/assets/28c8c0e9-f05f-4e69-b7fb-c715f8bf0001" />
+
+
+ 入群有问题，请微信：agentpit 加入，Star本仓库持续关注
+
+---
 
 ---
 
@@ -699,14 +708,6 @@ console.log(report);
 
 ---
 
-## 💬 开发者社群
-
-扫码加入 **AgentPit 金融AI开发者群**，与量化开发者交流API使用技巧和金融AI应用。
-
-<!-- 微信群二维码（定期更新） -->
-> 微信群二维码即将更新，Star本仓库持续关注
-
----
 
 ## 📄 License
 
